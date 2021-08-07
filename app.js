@@ -4,9 +4,24 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+var mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users/usersRouter');
+
+require('dotenv').config();
+
+mongoose
+	.connect(process.env.MONGO_DB, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+	})
+	.then(() => {
+		console.log('MONGO DB CONNECTED');
+	})
+	.catch((e) => {
+		console.log(e);
+	});
 
 var app = express();
 
