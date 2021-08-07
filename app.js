@@ -1,13 +1,13 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors');
+var createError = require('http-errors');
 var mongoose = require('mongoose');
+var express = require('express');
+var logger = require('morgan');
+var path = require('path');
+var cors = require('cors');
 
-var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users/usersRouter');
+var indexRouter = require('./routes/index');
 
 require('dotenv').config();
 
