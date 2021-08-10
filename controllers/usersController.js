@@ -1,25 +1,25 @@
 const mongoErrorParser = require('../lib/mongoErrorParser');
-const User = require('../users/model/User');
+const User = require('../model/User');
 const bcrypt = require('bcryptjs');
 
 const signUp = async (req, res) => {
 	console.log(`======signUp ran======`);
 	try {
-		const salted = await bcrypt.genSalt(10);
+		let salted = await bcrypt.genSalt(10);
 
-		const hashedPassword = await bcrypt.hash(req.body.password, salted);
+		let hashedPassword = await bcrypt.hash(req.body.password, salted);
 		console.log(`======hashedPassword======`);
 		console.log(hashedPassword);
 
-		const createdUser = new User({
+		let createdUser = new User({
 			email: req.body.email,
 			username: req.body.username,
 			password: hashedPassword,
 		});
-		// console.log(`======createdUser======`);
+		console.log(`======createdUser======`);
 		// console.log(createdUser);
 
-		const savedUser = await createdUser.save();
+		let savedUser = await createdUser.save();
 		// console.log(`======savedUser======`);
 		// console.log(savedUser);
 
