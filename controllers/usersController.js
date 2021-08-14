@@ -17,14 +17,11 @@ const signUp = async (req, res) => {
 			password: hashedPassword,
 		});
 		console.log(`======createdUser======`);
-		// console.log(createdUser);
 
 		let savedUser = await createdUser.save();
-		// console.log(`======savedUser======`);
-		// console.log(savedUser);
 
 		res.json({
-			data: savedUser,
+			savedUser,
 		});
 	} catch (error) {
 		res.status(500).json(mongoErrorParser(error));
