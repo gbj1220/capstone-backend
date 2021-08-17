@@ -1,24 +1,28 @@
 const mongoErrorParser = require('../lib/mongoErrorParser');
 const User = require('../model/User');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
-const signUp = async (req, res) => {
+require('dotenv').config();
+
+async function signUp(req, res) {
 	console.log(`======signUp ran======`);
 	try {
-		let salted = await bcrypt.genSalt(10);
+		const salted = await bcrypt.genSalt(10);
 
-		let hashedPassword = await bcrypt.hash(req.body.password, salted);
+		const hashedPassword = await bcrypt.hash(req.body.password, salted);
 		console.log(`======hashedPassword======`);
 		console.log(hashedPassword);
 
-		let createdUser = new User({
+		const createdUser = new User({
 			email: req.body.email,
 			username: req.body.username,
 			password: hashedPassword,
 		});
 		console.log(`======createdUser======`);
 
-		let savedUser = await createdUser.save();
+		const savedUser = await createdUser.save();
 
 		res.json({
 			savedUser,
@@ -28,8 +32,67 @@ const signUp = async (req, res) => {
 		console.log(error);
 		console.log(`======usersController signUp error ran======`);
 	}
-};
+}
+
+async function login(req, res) {
+	try {
+		const foundUser = await User.findOne({ username: req.body.username });
+
+		if (!foundUser) {
+			throw { message: 'Email is not registered' };
+		}
+
+		const comparedPassword = await bcrypt.compare(
+			req.body.password,
+			foundUser.password
+		);
+
+		if (!comparedPassword) {
+			throw { message: 'Incorrect username and or password' };
+		} else {
+			const jwtToken = jwt.sign(
+				{
+					username: foundUser.username,
+				},
+				process.env.JWT_SECRET,
+				{ expiresIn: '3h' }
+			);
+
+			res.json({
+				jwtToken,
+			});
+		}
+	} catch (e) {
+		res.status(500).json({
+			message: e.message,
+		});
+		console.log(e);
+	}
+}
+async function getRecipeData(req, res) {
+	try {
+		const response = await axios.get(
+			'https://edamam-recipe-search.p.rapidapi.com/search',
+			{
+				params: { q: 'chicken' },
+				headers: {
+					'x-rapidapi-key': process.env.FOOD_API_KEY,
+					'x-rapidapi-host': process.env.FOOD_API_HOST,
+				},
+			}
+		);
+
+		console.log(response);
+		res.json({
+			data: response.data,
+		});
+	} catch (e) {
+		console.log(mongoErrorParser(e));
+	}
+}
 
 module.exports = {
 	signUp,
+	login,
+	getRecipeData,
 };

@@ -1,7 +1,11 @@
 var express = require('express');
 var router = express.Router();
 
-const { signUp } = require('../controllers/usersController');
+const {
+	getRecipeData,
+	signUp,
+	login,
+} = require('../controllers/usersController');
 
 const {
 	checkIfInputIsEmpty,
@@ -21,5 +25,9 @@ router.post(
 	checkForStrongPassword,
 	signUp
 );
+
+router.post('/login', login);
+
+router.get('/get-recipe-data', getRecipeData);
 
 module.exports = router;
