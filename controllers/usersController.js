@@ -69,12 +69,15 @@ async function login(req, res) {
 		console.log(e);
 	}
 }
+
+//creating an async function in order to call the recipe api
 async function getRecipeData(req, res) {
 	try {
+		const { data } = req.body;
 		const response = await axios.get(
 			'https://edamam-recipe-search.p.rapidapi.com/search',
 			{
-				params: { q: 'chicken' },
+				params: { q: data },
 				headers: {
 					'x-rapidapi-key': process.env.FOOD_API_KEY,
 					'x-rapidapi-host': process.env.FOOD_API_HOST,
@@ -82,9 +85,8 @@ async function getRecipeData(req, res) {
 			}
 		);
 
-		console.log(response);
 		res.json({
-			data: response.data,
+			response,
 		});
 	} catch (e) {
 		console.log(mongoErrorParser(e));

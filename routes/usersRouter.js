@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+const turkeyObj = require('../../turkey.json');
+
 const {
 	getRecipeData,
 	signUp,
@@ -26,8 +28,12 @@ router.post(
 	signUp
 );
 
+router.post('/get-recipe-data', function (req, res, next) {
+	res.send(turkeyObj);
+});
+
 router.post('/login', login);
 
-router.get('/get-recipe-data', getRecipeData);
+// router.post('/get-recipe-data', getRecipeData);
 
 module.exports = router;
