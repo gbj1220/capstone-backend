@@ -9,12 +9,13 @@ require('dotenv').config();
 async function signUp(req, res) {
 	console.log(`======signUp ran======`);
 	try {
+		//setting up salt to encrypt the password given to function
 		const salted = await bcrypt.genSalt(10);
 
+		//hashing password to fully encrypt it
 		const hashedPassword = await bcrypt.hash(req.body.password, salted);
-		console.log(`======hashedPassword======`);
-		console.log(hashedPassword);
 
+		//creating a new user using the UserSchema model
 		const createdUser = new User({
 			email: req.body.email,
 			username: req.body.username,
@@ -22,8 +23,10 @@ async function signUp(req, res) {
 		});
 		console.log(`======createdUser======`);
 
+		//waiting for saved user promise to return
 		const savedUser = await createdUser.save();
 
+		//returning the new saved user to the client side
 		res.json({
 			savedUser,
 		});
