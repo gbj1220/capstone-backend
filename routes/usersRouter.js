@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const turkeyObj = require('../../turkey.json');
+const turkeyObj = require('../../backend/turkey.json');
 
 const {
 	getRecipeData,
@@ -34,6 +34,6 @@ router.post('/api/get-recipe-data', function (req, res, next) {
 
 router.post('/api/login', login);
 
-// router.post('/get-recipe-data', getRecipeData);
+router.post('/api/get-recipe-data', getRecipeData);
 
 module.exports = router;
