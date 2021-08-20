@@ -16,24 +16,20 @@ const {
 } = require('../lib/validator');
 
 /* GET users listing. */
-router.get('/api/', function (req, res, next) {
+router.get('/', function (req, res, next) {
 	res.send('respond with a resource');
 });
 
 router.post(
-	'/api/sign-up',
+	'/sign-up',
 	checkIfInputIsEmpty,
 	checkForSymbolsMiddleWare,
 	checkForStrongPassword,
 	signUp
 );
 
-router.post('/api/get-recipe-data', function (req, res, next) {
-	res.send(turkeyObj);
-});
+router.post('/login', login);
 
-router.post('/api/login', login);
-
-router.post('/api/get-recipe-data', getRecipeData);
+router.post('/get-recipe-data', getRecipeData);
 
 module.exports = router;

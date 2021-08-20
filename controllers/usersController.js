@@ -45,6 +45,8 @@ async function login(req, res) {
 			throw { message: 'Email is not registered' };
 		}
 
+		console.log('LOGIN WORKING LINE 48');
+
 		const comparedPassword = await bcrypt.compare(
 			req.body.password,
 			foundUser.password
@@ -87,7 +89,7 @@ async function getRecipeData(req, res) {
 				},
 			}
 		);
-
+		console.log(response);
 		res.json({
 			response,
 		});
@@ -97,7 +99,7 @@ async function getRecipeData(req, res) {
 }
 
 module.exports = {
-	signUp,
-	login,
 	getRecipeData,
+	login,
+	signUp,
 };
