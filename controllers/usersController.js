@@ -1,7 +1,7 @@
 const mongoErrorParser = require('../lib/mongoErrorParser');
 const User = require('../model/User');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const axios = require('axios');
 
 require('dotenv').config();
@@ -42,10 +42,8 @@ async function login(req, res) {
 		const foundUser = await User.findOne({ username: req.body.username });
 
 		if (!foundUser) {
-			throw { message: 'Email is not registered' };
+			throw 'Username not found';
 		}
-
-		console.log('LOGIN WORKING LINE 48');
 
 		const comparedPassword = await bcrypt.compare(
 			req.body.password,
@@ -53,7 +51,7 @@ async function login(req, res) {
 		);
 
 		if (!comparedPassword) {
-			throw { message: 'Incorrect username and or password' };
+			throw 'Password and Username must match';
 		} else {
 			const jwtToken = jwt.sign(
 				{
@@ -78,22 +76,27 @@ async function login(req, res) {
 //creating an async function in order to call the recipe api
 async function getRecipeData(req, res) {
 	try {
-		const { data } = req.body;
+		console.log(`====== getRecipeData ran backend ======`);
+		const { usrInput } = req.body;
+		console.log(`====== usrInput backend ======`);
+		console.log(usrInput);
 		const response = await axios.get(
 			'https://edamam-recipe-search.p.rapidapi.com/search',
 			{
-				params: { q: data },
+				params: { q: usrInput },
 				headers: {
 					'x-rapidapi-key': process.env.FOOD_API_KEY,
 					'x-rapidapi-host': process.env.FOOD_API_HOST,
 				},
 			}
 		);
-		console.log(response);
+		console.log(`====== response ======`);
+		console.log(response.data);
 		res.json({
-			response,
+			data: response.data,
 		});
 	} catch (e) {
+		res.status(500);
 		console.log(mongoErrorParser(e));
 	}
 }
