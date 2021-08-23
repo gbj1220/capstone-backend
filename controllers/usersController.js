@@ -1,5 +1,6 @@
 const mongoErrorParser = require('../lib/mongoErrorParser');
 const User = require('../model/User');
+const RecipeSchema = require('../model/SavedRecipes');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
@@ -101,8 +102,46 @@ async function getRecipeData(req, res) {
 	}
 }
 
+async function saveRecipe(req, res) {
+	try {
+		const { label, recipeLink } = req.body;
+
+		const recipe = await new RecipeSchema({
+			label,
+			recipeLink,
+		});
+
+		const newSavedRecipe = await recipe.save();
+
+		const token = req.headers.authorization.slice(7);
+		console.log(`====== token ======`);
+		console.log(token);
+
+		const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+		console.log(`====== decodedToken ======`);
+		console.log(decodedToken);
+
+		const targetUser = await User.findOne({
+			username: decodedToken.username,
+		});
+
+		console.log(`====== target user ======`);
+		console.log(targetUser);
+		targetUser.recipes.push(newSavedRecipe._id);
+
+		await targetUser.save();
+
+		res.json({
+			newSavedRecipe,
+		});
+	} catch (error) {
+		console.log(mongoErrorParser(error));
+	}
+}
+
 module.exports = {
 	getRecipeData,
+	saveRecipe,
 	login,
 	signUp,
 };

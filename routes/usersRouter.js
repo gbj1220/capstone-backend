@@ -3,14 +3,15 @@ var router = express.Router();
 
 const {
 	getRecipeData,
+	saveRecipe,
 	signUp,
 	login,
 } = require('../controllers/usersController');
 
 const {
-	checkIfInputIsEmpty,
 	checkForSymbolsMiddleWare,
 	checkForStrongPassword,
+	checkIfInputIsEmpty,
 } = require('../lib/validator');
 
 /* GET users listing. */
@@ -20,14 +21,16 @@ router.get('/', function (req, res, next) {
 
 router.post(
 	'/sign-up',
-	checkIfInputIsEmpty,
 	checkForSymbolsMiddleWare,
 	checkForStrongPassword,
+	checkIfInputIsEmpty,
 	signUp
 );
 
 router.post('/login', login);
 
 router.post('/get-recipe-data', getRecipeData);
+
+router.post('/save-recipe', saveRecipe);
 
 module.exports = router;
