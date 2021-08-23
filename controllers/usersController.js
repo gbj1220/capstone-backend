@@ -139,6 +139,8 @@ async function saveRecipe(req, res) {
 	}
 }
 
+async function getRecipes() {}
+
 module.exports = {
 	getRecipeData,
 	saveRecipe,
