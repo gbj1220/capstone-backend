@@ -3,6 +3,7 @@ var router = express.Router();
 
 const {
 	getRecipeData,
+	getRecipes,
 	saveRecipe,
 	signUp,
 	login,
@@ -32,5 +33,7 @@ router.post('/login', login);
 router.post('/get-recipe-data', getRecipeData);
 
 router.post('/save-recipe', saveRecipe);
+
+router.get('/get-recipes', getRecipes);
 
 module.exports = router;

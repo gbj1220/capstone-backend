@@ -104,10 +104,11 @@ async function getRecipeData(req, res) {
 
 async function saveRecipe(req, res) {
 	try {
-		const { label, recipeLink } = req.body;
+		const { label, image, recipeLink } = req.body;
 
 		const recipe = await new RecipeSchema({
 			label,
+			image,
 			recipeLink,
 		});
 
@@ -128,6 +129,8 @@ async function saveRecipe(req, res) {
 		console.log(`====== target user ======`);
 		console.log(targetUser);
 		targetUser.recipes.push(newSavedRecipe._id);
+		console.log(`====== new saved recipe ======`);
+		console.log(newSavedRecipe);
 
 		await targetUser.save();
 
@@ -139,10 +142,30 @@ async function saveRecipe(req, res) {
 	}
 }
 
-async function getRecipes() {}
+//maybe do an onClick handler for the view saved recipes button || useEffect on UsersRecipes.js to always pull new data when component is loaded.
+
+async function getRecipes(req, res) {
+	try {
+		const jwtToken = req.headers.authorization.slice(7);
+		const decodedToken = jwt.verify(jwtToken, process.env.JWT_SECRET);
+		const payload = await User.findOne({ username: decodedToken.username })
+			.populate({
+				path: 'recipes',
+				model: 'savedRecipe',
+				select: '-__v',
+			})
+			.select('-email -username -password');
+		console.log(`====== payload 158 ======`);
+		console.log(payload);
+		res.json(payload);
+	} catch (error) {
+		console.log(mongoErrorParser(error));
+	}
+}
 
 module.exports = {
 	getRecipeData,
+	getRecipes,
 	saveRecipe,
 	login,
 	signUp,

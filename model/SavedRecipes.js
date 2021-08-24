@@ -4,9 +4,12 @@ const RecipeSchema = new mongoose.Schema({
 	label: {
 		type: String,
 	},
+	image: {
+		type: String,
+	},
 	recipeLink: {
 		type: String,
 	},
 });
 
-module.exports = mongoose.model('recipe', RecipeSchema);
+module.exports = mongoose.model('savedRecipe', RecipeSchema);
