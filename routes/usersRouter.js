@@ -13,7 +13,7 @@ const {
 	checkForSymbolsMiddleWare,
 	checkForStrongPassword,
 	checkIfInputIsEmpty,
-} = require('../lib/validator');
+} = require('../middleWares/validator');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {

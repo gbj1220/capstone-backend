@@ -1,6 +1,6 @@
-const mongoErrorParser = require('../lib/mongoErrorParser');
-const User = require('../model/User');
+const mongoErrorParser = require('../middleWares/mongoErrorParser');
 const RecipeSchema = require('../model/SavedRecipes');
+const User = require('../model/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
@@ -8,7 +8,6 @@ const axios = require('axios');
 require('dotenv').config();
 
 async function signUp(req, res) {
-	console.log(`======signUp ran======`);
 	try {
 		//setting up salt to encrypt the password given to function
 		const salted = await bcrypt.genSalt(10);
@@ -22,7 +21,6 @@ async function signUp(req, res) {
 			username: req.body.username,
 			password: hashedPassword,
 		});
-		console.log(`======createdUser======`);
 
 		//waiting for saved user promise to return
 		const savedUser = await createdUser.save();
@@ -31,10 +29,8 @@ async function signUp(req, res) {
 		res.json({
 			savedUser,
 		});
-	} catch (error) {
-		res.status(500).json(mongoErrorParser(error));
-		console.log(error);
-		console.log(`======usersController signUp error ran======`);
+	} catch (err) {
+		res.status(500).json(mongoErrorParser(err));
 	}
 }
 
@@ -66,11 +62,10 @@ async function login(req, res) {
 				jwtToken,
 			});
 		}
-	} catch (e) {
-		res.status(500).json({
-			message: e.message,
+	} catch (err) {
+		res.status(400).json({
+			err,
 		});
-		console.log(e);
 	}
 }
 
@@ -96,9 +91,8 @@ async function getRecipeData(req, res) {
 		res.json({
 			data: response.data,
 		});
-	} catch (e) {
-		res.status(500);
-		console.log(mongoErrorParser(e));
+	} catch (err) {
+		res.status(500).json(mongoErrorParser(err));
 	}
 }
 
@@ -137,8 +131,8 @@ async function saveRecipe(req, res) {
 		res.json({
 			newSavedRecipe,
 		});
-	} catch (error) {
-		console.log(mongoErrorParser(error));
+	} catch (err) {
+		res.status(500).json(mongoErrorParser(err));
 	}
 }
 
@@ -158,8 +152,8 @@ async function getRecipes(req, res) {
 		console.log(`====== payload 158 ======`);
 		console.log(payload);
 		res.json(payload);
-	} catch (error) {
-		console.log(mongoErrorParser(error));
+	} catch (err) {
+		res.status(500).json(mongoErrorParser(err));
 	}
 }
 
