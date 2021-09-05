@@ -1,56 +1,62 @@
-const mongoErrorParser = require('../middleWares/mongoErrorParser');
 const RecipeSchema = require('../model/SavedRecipes');
 const User = require('../model/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
-
+//requiring in dotenv so that I can access my .env file and change my port accordingly
 require('dotenv').config();
 
 async function signUp(req, res) {
 	try {
 		//setting up salt to encrypt the password given to function
-		const salted = await bcrypt.genSalt(10);
+		let salted = await bcrypt.genSalt(10);
 
 		//hashing password to fully encrypt it
-		const hashedPassword = await bcrypt.hash(req.body.password, salted);
+		let hashedPassword = await bcrypt.hash(req.body.password, salted);
 
 		//creating a new user using the UserSchema model
-		const createdUser = new User({
+		let createdUser = new User({
 			email: req.body.email,
 			username: req.body.username,
 			password: hashedPassword,
 		});
 
 		//waiting for saved user promise to return
-		const savedUser = await createdUser.save();
+		let savedUser = await createdUser.save();
 
 		//returning the new saved user to the client side
 		res.json({
 			savedUser,
 		});
 	} catch (err) {
-		res.status(500).json(mongoErrorParser(err));
+		//if an err occurs, return a 400 error and return the err response to the client side
+		res.status(400).json({
+			err,
+		});
 	}
 }
 
 async function login(req, res) {
+	//create a var to store result of querying DB for username
 	try {
-		const foundUser = await User.findOne({ username: req.body.username });
+		let foundUser = await User.findOne({ username: req.body.username });
 
+		//throw an error if the username is not in the DB
 		if (!foundUser) {
 			throw 'Username not found';
 		}
 
-		const comparedPassword = await bcrypt.compare(
+		//using bcrypt to compare what the user typed in against what is in the DB
+		let comparedPassword = await bcrypt.compare(
 			req.body.password,
 			foundUser.password
 		);
 
+		//if the password is incorrect throw an error message otherwise create a new jwtToken and assign it to the user
 		if (!comparedPassword) {
 			throw 'Password and Username must match';
 		} else {
-			const jwtToken = jwt.sign(
+			let jwtToken = jwt.sign(
 				{
 					username: foundUser.username,
 				},
@@ -58,25 +64,24 @@ async function login(req, res) {
 				{ expiresIn: '3h' }
 			);
 
-			res.json({
-				jwtToken,
-			});
+			//returning the jwtToken
+			res.json({ jwtToken });
 		}
 	} catch (err) {
-		res.status(400).json({
-			err,
-		});
+		console.log(`====== err ======`);
+		console.log(err);
+		res.json({ err }).status(400);
 	}
 }
 
 //creating an async function in order to call the recipe api
 async function getRecipeData(req, res) {
 	try {
-		console.log(`====== getRecipeData ran backend ======`);
+		//destructuring req object
 		const { usrInput } = req.body;
-		console.log(`====== usrInput backend ======`);
-		console.log(usrInput);
-		const response = await axios.get(
+
+		//creating a var the save the api call response to
+		let response = await axios.get(
 			'https://edamam-recipe-search.p.rapidapi.com/search',
 			{
 				params: { q: usrInput },
@@ -86,37 +91,39 @@ async function getRecipeData(req, res) {
 				},
 			}
 		);
-		console.log(`====== response ======`);
-		console.log(response.data);
-		res.json({
-			data: response.data,
-		});
+
+		//returning the data
+		res.json({ data: response.data });
 	} catch (err) {
-		res.status(500).json(mongoErrorParser(err));
+		//otherwise send back err object to client side
+		res.status(400).json({ err });
 	}
 }
 
+//function which adds a selected recipe to the users DB
 async function saveRecipe(req, res) {
+	//destructuring req object
 	try {
 		const { label, image, recipeLink } = req.body;
 
-		const recipe = await new RecipeSchema({
+		//using the RecipeSchema to save a recipe to users DB
+		let recipe = await new RecipeSchema({
 			label,
 			image,
 			recipeLink,
 		});
 
-		const newSavedRecipe = await recipe.save();
+		let newSavedRecipe = await recipe.save();
 
-		const token = req.headers.authorization.slice(7);
+		let token = req.headers.authorization.slice(7);
 		console.log(`====== token ======`);
 		console.log(token);
 
-		const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+		let decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 		console.log(`====== decodedToken ======`);
 		console.log(decodedToken);
 
-		const targetUser = await User.findOne({
+		let targetUser = await User.findOne({
 			username: decodedToken.username,
 		});
 
@@ -132,7 +139,9 @@ async function saveRecipe(req, res) {
 			newSavedRecipe,
 		});
 	} catch (err) {
-		res.status(500).json(mongoErrorParser(err));
+		res.status(400).json({
+			err,
+		});
 	}
 }
 
@@ -140,20 +149,20 @@ async function saveRecipe(req, res) {
 
 async function getRecipes(req, res) {
 	try {
-		const jwtToken = req.headers.authorization.slice(7);
-		const decodedToken = jwt.verify(jwtToken, process.env.JWT_SECRET);
-		const payload = await User.findOne({ username: decodedToken.username })
+		let jwtToken = req.headers.authorization.slice(7);
+		let decodedToken = jwt.verify(jwtToken, process.env.JWT_SECRET);
+		let payload = await User.findOne({ username: decodedToken.username })
 			.populate({
 				path: 'recipes',
 				model: 'savedRecipe',
 				select: '-__v',
 			})
 			.select('-email -username -password');
-		console.log(`====== payload 158 ======`);
-		console.log(payload);
 		res.json(payload);
 	} catch (err) {
-		res.status(500).json(mongoErrorParser(err));
+		res.status(400).json({
+			err,
+		});
 	}
 }
 

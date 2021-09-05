@@ -1,7 +1,5 @@
 const User = require('../model/User');
 const { isEmpty, isEmail, matches, isStrongPassword } = require('validator');
-const mongoDBErrorHelper = require('./mongoErrorParser');
-const { MongoError } = require('mongodb');
 
 const checkIfEmpty = (target) => {
 	if (isEmpty(target)) {
@@ -60,7 +58,7 @@ const checkIfInputIsEmpty = (req, res, next) => {
 	}
 
 	if (Object.keys(errObj).length > 0) {
-		res.status(500).json(mongoDBErrorHelper({ message: errObj }));
+		res.status(500).json({ message: errObj });
 	} else {
 		next();
 	}
@@ -75,7 +73,7 @@ const checkForSymbolsMiddleWare = (req, res, next) => {
 	}
 
 	if (Object.keys(errorObj).length > 0) {
-		res.status(500).json(mongoDBErrorHelper({ message: errorObj }));
+		res.status(500).json({ message: errorObj });
 	} else {
 		next();
 	}
@@ -112,27 +110,7 @@ const checkForStrongPassword = (req, res, next) => {
 	}
 
 	if (Object.keys(errorObj).length > 0) {
-		res.status(500).json(mongoDBErrorHelper({ message: errorObj }));
-	} else {
-		next();
-	}
-};
-
-const checkForValidLogin = async (req, res, next) => {
-	let errorObj = {};
-	const newFoundUser = await User.find({ username: req.body.username });
-	const username = req.body.username;
-	const password = req.body.password;
-
-	if (
-		newFoundUser.username !== username ||
-		newFoundUser.password !== password
-	) {
-		errorObj.signUp = 'Username or password is incorrect.';
-	}
-
-	if (Object.keys(errorObj).length > 0) {
-		res.status(500).json(mongoDBErrorHelper({ message: errorObj }));
+		res.status(500).json({ message: errorObj });
 	} else {
 		next();
 	}
