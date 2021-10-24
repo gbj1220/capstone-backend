@@ -65,7 +65,7 @@ async function login(req, res) {
 			);
 
 			//returning the jwtToken
-			res.json({ jwtToken });
+      res.json({ jwtToken })
 		}
 	} catch (err) {
 		console.log(`====== err ======`);
