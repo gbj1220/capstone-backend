@@ -76,6 +76,7 @@ async function login(req, res) {
 
 //creating an async function in order to call the recipe api
 async function getRecipeData(req, res) {
+  console.log(req.body.usrInput)
 	try {
 		//destructuring req object
 		const { usrInput } = req.body;
@@ -91,9 +92,9 @@ async function getRecipeData(req, res) {
 				},
 			}
 		);
-
+      const data = response.data
 		//returning the data
-		res.json({ data: response.data });
+		res.json({ data });
 	} catch (err) {
 		//otherwise send back err object to client side
 		res.status(400).json({ err });
