@@ -1,31 +1,32 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+
+const router = express.Router();
 
 const {
-	getRecipeData,
-	getRecipes,
-	saveRecipe,
-	signUp,
-	login,
+  getRecipeData,
+  getRecipes,
+  saveRecipe,
+  signUp,
+  login,
 } = require('../controllers/usersController');
 
 const {
-	checkForSymbolsMiddleWare,
-	checkForStrongPassword,
-	checkIfInputIsEmpty,
+  checkForSymbolsMiddleWare,
+  checkForStrongPassword,
+  checkIfInputIsEmpty,
 } = require('../middleWares/validator');
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
-	res.send('respond with a resource');
+router.get('/', (req, res) => {
+  res.send('respond with a resource');
 });
 
 router.post(
-	'/sign-up',
-	checkForSymbolsMiddleWare,
-	checkForStrongPassword,
-	checkIfInputIsEmpty,
-	signUp
+  '/sign-up',
+  checkForSymbolsMiddleWare,
+  checkForStrongPassword,
+  checkIfInputIsEmpty,
+  signUp,
 );
 
 router.post('/login', login);

@@ -1,29 +1,30 @@
-var cookieParser = require('cookie-parser');
-var createError = require('http-errors');
-var mongoose = require('mongoose');
-var express = require('express');
-var logger = require('morgan');
-var path = require('path');
-var cors = require('cors');
+/* eslint-disable no-console */
+const cookieParser = require('cookie-parser');
+const createError = require('http-errors');
+const mongoose = require('mongoose');
+const express = require('express');
+const logger = require('morgan');
+const path = require('path');
+const cors = require('cors');
 
-var usersRouter = require('./routes/usersRouter');
-var indexRouter = require('./routes/index');
+const usersRouter = require('./routes/usersRouter');
+const indexRouter = require('./routes/index');
 
 require('dotenv').config();
 
 mongoose
-	.connect(process.env.MONGO_DB, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-	})
-	.then(() => {
-		console.log('MONGO DB CONNECTED');
-	})
-	.catch((e) => {
-		console.log(e);
-	});
+  .connect(process.env.MONGO_DB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('MONGO DB CONNECTED');
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -40,19 +41,19 @@ app.use('/api/users', usersRouter);
 app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-	next(createError(404));
+app.use((req, res, next) => {
+  next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
-	// set locals, only providing error in development
-	res.locals.message = err.message;
-	res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use((err, req, res) => {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-	// render the error page
-	res.status(err.status || 500);
-	res.render('error');
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
 });
 
 module.exports = app;

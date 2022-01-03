@@ -1,124 +1,124 @@
-const User = require('../model/User');
-const { isEmpty, isEmail, matches, isStrongPassword } = require('validator');
+const {
+  isEmpty, isEmail, matches, isStrongPassword,
+} = require('validator');
 
-const checkIfEmpty = (target) => {
-	if (isEmpty(target)) {
-		return true;
-	} else {
-		return false;
-	}
-};
+function checkIfEmpty(target) {
+  if (isEmpty(target)) {
+    return true;
+  }
+  return false;
+}
 
-const checkIfEmailFormat = (target) => {
-	if (isEmail(target)) {
-		return true;
-	} else {
-		return false;
-	}
-};
+function checkIfEmailFormat(target) {
+  if (isEmail(target)) {
+    return true;
+  }
+  return false;
+}
 
-const checkForSymbol = (target) => {
-	if (matches(target, /[!@#$%^&*()\[\],.?":;{}|<>]/g)) {
-		return true;
-	} else {
-		return false;
-	}
-};
+/* Shorthand
+  const checkIfEmailFormat = (target) => (!!isEmail(target));
+*/
 
-const checkIfStrongPassword = (target) => {
-	if (isStrongPassword(target)) {
-		return true;
-	} else {
-		return false;
-	}
-};
+function checkForSymbol(target) {
+  if (matches(target, /[!@#$%^&*()[\],.?":;{}|<>]/g)) {
+    return true;
+  }
+  return false;
+}
 
-const checkIfInputIsEmpty = (req, res, next) => {
-	let errObj = {};
-	let checkedEmail = false;
+function checkIfStrongPassword(target) {
+  if (isStrongPassword(target)) {
+    return true;
+  }
+  return false;
+}
 
-	const { email, username, password } = req.body;
+function checkIfInputIsEmpty(req, res, next) {
+  const errObj = {};
+  const checkedEmail = false;
 
-	if (checkIfEmpty(email)) {
-		errObj.email = 'Email cannot be empty.';
-	}
+  const { email, username, password } = req.body;
 
-	if (checkIfEmpty(username)) {
-		errObj.username = 'Username cannot be empty.';
-	}
+  if (checkIfEmpty(email)) {
+    errObj.email = 'Email cannot be empty.';
+  }
 
-	if (checkIfEmpty(password)) {
-		errObj.password = 'Password cannot be empty.';
-	}
+  if (checkIfEmpty(username)) {
+    errObj.username = 'Username cannot be empty.';
+  }
 
-	if (!checkedEmail) {
-		if (!checkIfEmailFormat) {
-			errObj.email = 'Must be in email format.';
-		}
-	}
+  if (checkIfEmpty(password)) {
+    errObj.password = 'Password cannot be empty.';
+  }
 
-	if (Object.keys(errObj).length > 0) {
-		res.status(500).json({ message: errObj });
-	} else {
-		next();
-	}
-};
+  if (!checkedEmail) {
+    if (!checkIfEmailFormat) {
+      errObj.email = 'Must be in email format.';
+    }
+  }
 
-const checkForSymbolsMiddleWare = (req, res, next) => {
-	let errorObj = {};
-	let { username } = req.body;
+  if (Object.keys(errObj).length > 0) {
+    res.status(500).json({ message: errObj });
+  } else {
+    next();
+  }
+}
 
-	if (checkForSymbol(username)) {
-		errorObj.username = 'First Name cannot contains special characters';
-	}
+function checkForSymbolsMiddleWare(req, res, next) {
+  const errorObj = {};
+  const { username } = req.body;
 
-	if (Object.keys(errorObj).length > 0) {
-		res.status(500).json({ message: errorObj });
-	} else {
-		next();
-	}
-};
+  if (checkForSymbol(username)) {
+    errorObj.username = 'First Name cannot contains special characters';
+  }
 
-const checkIfLoginIsEmpty = (req, res, next) => {
-	let errorObj = {};
+  if (Object.keys(errorObj).length > 0) {
+    res.status(500).json({ message: errorObj });
+  } else {
+    next();
+  }
+}
 
-	const { email, password } = req.body;
+function checkIfLoginIsEmpty(req, res, next) {
+  const errorObj = {};
 
-	if (checkIfEmpty(email)) {
-		errorObj.email = 'Email cannot be empty';
-	}
+  const { email, password } = req.body;
 
-	if (checkIfEmpty(password)) {
-		errorObj.password = 'Password cannot be empty';
-	}
+  if (checkIfEmpty(email)) {
+    errorObj.email = 'Email cannot be empty';
+  }
 
-	if (Object.keys(errorObj).length > 0) {
-		res.status(500).json(mongoDBErrorHelper({ message: errorObj }));
-	} else {
-		next();
-	}
-};
+  if (checkIfEmpty(password)) {
+    errorObj.password = 'Password cannot be empty';
+  }
 
-const checkForStrongPassword = (req, res, next) => {
-	let errorObj = {};
+  if (Object.keys(errorObj).length > 0) {
+    res.status(500).json({ message: errorObj });
+  } else {
+    next();
+  }
+}
 
-	const { password } = req.body;
+function checkForStrongPassword(req, res, next) {
+  const errorObj = {};
 
-	if (!checkIfStrongPassword(password)) {
-		errorObj.password =
-			'Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, and at least 1 special symbol.';
-	}
+  const { password } = req.body;
 
-	if (Object.keys(errorObj).length > 0) {
-		res.status(500).json({ message: errorObj });
-	} else {
-		next();
-	}
-};
+  if (!checkIfStrongPassword(password)) {
+    errorObj.password = 'Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, and at least 1 special symbol.';
+  }
+
+  if (Object.keys(errorObj).length > 0) {
+    res.status(500).json({ message: errorObj });
+  } else {
+    next();
+  }
+}
 
 module.exports = {
-	checkForSymbolsMiddleWare,
-	checkForStrongPassword,
-	checkIfInputIsEmpty,
-	checkIfLoginIsEmpty,
+  checkForSymbolsMiddleWare,
+  checkForStrongPassword,
+  checkIfInputIsEmpty,
+  checkIfLoginIsEmpty,
 };
