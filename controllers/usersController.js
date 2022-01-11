@@ -63,7 +63,7 @@ async function login(req, res) {
           lastName: foundUser.lastName,
         },
         process.env.SECRET_SQUIRREL_STUFF,
-        { expiresIn: '1d' },
+        { expiresIn: '24h' },
       );
       res.json({
         jwtToken,
@@ -144,16 +144,16 @@ async function getRecipes(req, res) {
 
     const decodedToken = jwt.verify(token, process.env.SECRET_SQUIRREL_STUFF);
 
-    let payload = await User.findOne({
+    const payload = await User.findOne({
       email: decodedToken.email,
     }).populate('recipes');
 
-    payload = payload.recipes.map((el) => el);
+    console.log(payload);
 
-    res.json({ payload });
+    res.json(payload);
   } catch (err) {
     console.log(`====== err: ${err} ======`);
-    res.status(500).json({
+    res.status(400).json({
       err,
     });
   }
