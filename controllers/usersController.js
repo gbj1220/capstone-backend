@@ -70,7 +70,7 @@ async function login(req, res) {
       });
     }
   } catch (err) {
-    res.json({ err }).status(400);
+    res.status(500).json({ err });
   }
 }
 
@@ -102,8 +102,6 @@ async function getRecipeData(req, res) {
 
 // function which adds a selected recipe to the users DB
 async function saveRecipe(req, res) {
-  // destructuring req object
-
   try {
     const { label, image, recipeLink } = req.body;
 
@@ -134,10 +132,6 @@ async function saveRecipe(req, res) {
   }
 }
 
-// maybe do an onClick handler for the view saved
-// recipes button || useEffect on UsersRecipes.js
-// to always pull new data when component is loaded.
-
 async function getRecipes(req, res) {
   try {
     const token = req.headers.authorization.slice(7);
@@ -148,8 +142,6 @@ async function getRecipes(req, res) {
       email: decodedToken.email,
     }).populate('recipes');
 
-    console.log(payload);
-
     res.json(payload);
   } catch (err) {
     console.log(`====== err: ${err} ======`);
@@ -159,10 +151,41 @@ async function getRecipes(req, res) {
   }
 }
 
+async function deleteRecipe(req, res) {
+  try {
+    // Sending the ID of the object I want to delete from database.
+    const { id } = req.body;
+    // console.log('====== THIS IS THE ID!!! ======');
+    // console.log(id);
+
+    // Grabbing the jwtToken that is being sent via header.
+    const token = req.headers.authorization.slice(7);
+
+    // Finding the current user so that I can access their array of recipes.
+    const currentUser = jwt.verify(token, process.env.SECRET_SQUIRREL_STUFF);
+
+    /*  Finding the current user and populating the recipes arr before
+    filtering out the specified ID. */
+    const payload = await User.findOne({ email: currentUser.email }).populate('recipes');
+
+    // Filtering the users recipes array to remove item.
+    payload.recipes.filter((recipe) => recipe._id !== id);
+    payload.save();
+
+    console.log('====== PAYLOAD ======');
+    console.log(payload);
+
+    res.json(payload);
+  } catch (err) {
+    res.status(500).json({ err });
+  }
+}
+
 module.exports = {
   getRecipeData,
   getRecipes,
   saveRecipe,
   login,
   signUp,
+  deleteRecipe,
 };
