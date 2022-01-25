@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 const jwt = require('jsonwebtoken');
@@ -155,8 +156,9 @@ async function deleteRecipe(req, res) {
   try {
     // Sending the ID of the object I want to delete from database.
     const { id } = req.body;
-    // console.log('====== THIS IS THE ID!!! ======');
-    // console.log(id);
+    console.log('====== THIS IS THE ID!!! ======');
+    console.log(id);
+    console.log(typeof (id));
 
     // Grabbing the jwtToken that is being sent via header.
     const token = req.headers.authorization.slice(7);
@@ -166,16 +168,15 @@ async function deleteRecipe(req, res) {
 
     /*  Finding the current user and populating the recipes arr before
     filtering out the specified ID. */
-    const payload = await User.findOne({ email: currentUser.email }).populate('recipes');
+    const payload = await User.findOne({ email: currentUser.email });
 
     // Filtering the users recipes array to remove item.
-    payload.recipes.filter((recipe) => recipe._id !== id);
-    payload.save();
+    const filteredPayload = payload.recipes.filter((recipe) => recipe._id != id);
 
     console.log('====== PAYLOAD ======');
-    console.log(payload);
+    console.log(filteredPayload);
 
-    res.json(payload);
+    res.json(filteredPayload);
   } catch (err) {
     res.status(500).json({ err });
   }
