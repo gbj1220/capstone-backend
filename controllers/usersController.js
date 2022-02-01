@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
 const User = require('../model/User');
-const Recipe = require('../model/Recipes');
+const Recipes = require('../model/Recipes');
 
 // requiring in dotenv so that I can access .env file and change my port accordingly
 require('dotenv').config();
@@ -106,7 +106,7 @@ async function saveRecipe(req, res) {
   try {
     const { label, image, recipeLink } = req.body;
 
-    const newRecipe = await new Recipe({
+    const newRecipe = await new Recipes({
       label,
       image,
       recipeLink,
@@ -142,6 +142,7 @@ async function getRecipes(req, res) {
     const payload = await User.findOne({
       email: decodedToken.email,
     }).populate('recipes');
+    await payload.save();
 
     res.json(payload);
   } catch (err) {
@@ -152,34 +153,11 @@ async function getRecipes(req, res) {
   }
 }
 
-async function deleteRecipe(req, res) {
-  try {
-    // Sending the ID of the object I want to delete from database.
-    const { id } = req.body;
-    console.log('====== THIS IS THE ID!!! ======');
-    console.log(id);
-    console.log(typeof (id));
-
-    // Grabbing the jwtToken that is being sent via header.
-    const token = req.headers.authorization.slice(7);
-
-    // Finding the current user so that I can access their array of recipes.
-    const currentUser = jwt.verify(token, process.env.SECRET_SQUIRREL_STUFF);
-
-    /*  Finding the current user and populating the recipes arr before
-    filtering out the specified ID. */
-    const payload = await User.findOne({ email: currentUser.email });
-
-    // Filtering the users recipes array to remove item.
-    const filteredPayload = payload.recipes.filter((recipe) => recipe._id != id);
-
-    console.log('====== PAYLOAD ======');
-    console.log(filteredPayload);
-
-    res.json(filteredPayload);
-  } catch (err) {
-    res.status(500).json({ err });
-  }
+function deleteRecipe(req) {
+  Recipes.deleteOne({ _id: req.body.id }, (err) => {
+    if (err) console.log(err);
+    console.log('Successful deletion');
+  });
 }
 
 module.exports = {
